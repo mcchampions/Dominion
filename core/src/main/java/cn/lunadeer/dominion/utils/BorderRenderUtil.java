@@ -294,7 +294,6 @@ public class BorderRenderUtil {
             particleType = Particle.COMPOSTER;
         }
 
-        final World world = dominion.getWorld();
         final CuboidDTO cuboid = dominion.getCuboid();
         final int x1 = cuboid.x1(), y1 = cuboid.y1(), z1 = cuboid.z1();
         final int x2 = cuboid.x2() + 1, y2 = cuboid.y2() + 1, z2 = cuboid.z2() + 1;
@@ -308,20 +307,20 @@ public class BorderRenderUtil {
                 return;
             }
             // Bottom face edges (y = y1)
-            drawLine(player, world, pt, x1, y1, z1, x2, y1, z1, spacing);
-            drawLine(player, world, pt, x1, y1, z2, x2, y1, z2, spacing);
-            drawLine(player, world, pt, x1, y1, z1, x1, y1, z2, spacing);
-            drawLine(player, world, pt, x2, y1, z1, x2, y1, z2, spacing);
+            drawLine(player, pt, x1, y1, z1, x2, y1, z1, spacing);
+            drawLine(player, pt, x1, y1, z2, x2, y1, z2, spacing);
+            drawLine(player, pt, x1, y1, z1, x1, y1, z2, spacing);
+            drawLine(player, pt, x2, y1, z1, x2, y1, z2, spacing);
             // Top face edges (y = y2)
-            drawLine(player, world, pt, x1, y2, z1, x2, y2, z1, spacing);
-            drawLine(player, world, pt, x1, y2, z2, x2, y2, z2, spacing);
-            drawLine(player, world, pt, x1, y2, z1, x1, y2, z2, spacing);
-            drawLine(player, world, pt, x2, y2, z1, x2, y2, z2, spacing);
+            drawLine(player, pt, x1, y2, z1, x2, y2, z1, spacing);
+            drawLine(player, pt, x1, y2, z2, x2, y2, z2, spacing);
+            drawLine(player, pt, x1, y2, z1, x1, y2, z2, spacing);
+            drawLine(player, pt, x2, y2, z1, x2, y2, z2, spacing);
             // Vertical edges
-            drawLine(player, world, pt, x1, y1, z1, x1, y2, z1, spacing);
-            drawLine(player, world, pt, x2, y1, z1, x2, y2, z1, spacing);
-            drawLine(player, world, pt, x1, y1, z2, x1, y2, z2, spacing);
-            drawLine(player, world, pt, x2, y1, z2, x2, y2, z2, spacing);
+            drawLine(player, pt, x1, y1, z1, x1, y2, z1, spacing);
+            drawLine(player, pt, x2, y1, z1, x2, y2, z1, spacing);
+            drawLine(player, pt, x1, y1, z2, x1, y2, z2, spacing);
+            drawLine(player, pt, x2, y1, z2, x2, y2, z2, spacing);
         }, 0, CUBE_FRAME_TICK_INTERVAL);
 
         playerCubeFrameTasks.put(player.getUniqueId(), task);
@@ -335,7 +334,7 @@ public class BorderRenderUtil {
     /**
      * Draw particles along a straight line segment between two points.
      */
-    private static void drawLine(Player player, World world, Particle particle,
+    private static void drawLine(Player player, Particle particle,
                                   double x1, double y1, double z1,
                                   double x2, double y2, double z2,
                                   double spacing) {
