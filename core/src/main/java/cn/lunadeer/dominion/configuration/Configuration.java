@@ -212,6 +212,24 @@ public class Configuration extends ConfigurationFile {
             "Recommended not to exceed 60."
         })
         public int crossingParticleCount = 30;
+
+        @Comments({
+                "Whether to show a cube frame wireframe effect when entering/leaving a dominion.",
+                "Draws particles along the 12 edges of the dominion cuboid."
+        })
+        public boolean enableCubeFrame = true;
+
+        @Comments({
+                "Particle type used for the cube frame wireframe effect.",
+                "Must be a valid Bukkit Particle name, e.g. COMPOSTER, HAPPY_VILLAGER, END_ROD, etc."
+        })
+        public String cubeFrameParticle = "COMPOSTER";
+
+        @Comments({
+                "Duration of the cube frame effect in ticks (20 ticks = 1 second).",
+                "Default: 160 ticks = 8 seconds."
+        })
+        public int cubeFrameDuration = 160;
     }
 
     @Comments("Weather the player can migrate residence data to dominion.")

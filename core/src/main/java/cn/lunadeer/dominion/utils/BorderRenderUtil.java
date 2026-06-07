@@ -5,6 +5,7 @@ import cn.lunadeer.dominion.api.dtos.DominionDTO;
 import cn.lunadeer.dominion.configuration.Configuration;
 import cn.lunadeer.dominion.utils.holograme.HoloItem;
 import cn.lunadeer.dominion.utils.holograme.HoloManager;
+import cn.lunadeer.dominion.utils.scheduler.CancellableTask;
 import cn.lunadeer.dominion.utils.scheduler.Scheduler;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -14,6 +15,9 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -38,6 +42,15 @@ public class BorderRenderUtil {
 
     /** Speed of outward-moving particles along the border plane. */
     private static final double CROSSING_PARTICLE_SPEED = 0.35;
+
+    /** Spacing between particles along cube frame edges, in blocks. */
+    private static final double CUBE_FRAME_PARTICLE_SPACING = 0.5;
+
+    /** Interval between cube frame particle spawns, in ticks. */
+    private static final long CUBE_FRAME_TICK_INTERVAL = 5;
+
+    /** Tracks active cube frame tasks per player so they can be cancelled on re-trigger. */
+    private static final Map<UUID, CancellableTask> playerCubeFrameTasks = new ConcurrentHashMap<>();
 
     public static final Color DEFAULT_GLOW_COLOR = Color.fromRGB(0, 180, 255);
 
@@ -249,6 +262,94 @@ public class BorderRenderUtil {
             }
             player.spawnParticle(particleType, spawnX, spawnY + 1.5, spawnZ,
                     0, dirX, dirY, dirZ, CROSSING_PARTICLE_SPEED);
+        }
+    }
+
+    // ==================== Cube Frame Effect (wireframe cuboid on cross) ====================
+
+    /**
+     * Show a cube frame wireframe effect around the dominion using particles.
+     * Draws particles along all 12 edges of the dominion cuboid, repeating every
+     * {@link #CUBE_FRAME_TICK_INTERVAL} ticks for the configured duration.
+     * If a frame is already active for this player, it is restarted.
+     */
+    public static void showCubeFrame(Player player, DominionDTO dominion) {
+        if (player == null || !player.isOnline() || dominion == null) return;
+        if (!Configuration.borderDisplay.enableCubeFrame) return;
+        if (dominion.getWorld() == null) return;
+
+        int duration = Configuration.borderDisplay.cubeFrameDuration;
+        if (duration <= 0) return;
+
+        // Cancel any existing cube frame for this player
+        CancellableTask existing = playerCubeFrameTasks.remove(player.getUniqueId());
+        if (existing != null) {
+            existing.cancel();
+        }
+
+        Particle particleType;
+        try {
+            particleType = Particle.valueOf(Configuration.borderDisplay.cubeFrameParticle.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            particleType = Particle.COMPOSTER;
+        }
+
+        final World world = dominion.getWorld();
+        final CuboidDTO cuboid = dominion.getCuboid();
+        final int x1 = cuboid.x1(), y1 = cuboid.y1(), z1 = cuboid.z1();
+        final int x2 = cuboid.x2() + 1, y2 = cuboid.y2() + 1, z2 = cuboid.z2() + 1;
+        final double spacing = CUBE_FRAME_PARTICLE_SPACING;
+        final Particle pt = particleType;
+
+        CancellableTask task = Scheduler.runTaskRepeat(() -> {
+            if (!player.isOnline()) {
+                CancellableTask t = playerCubeFrameTasks.remove(player.getUniqueId());
+                if (t != null) t.cancel();
+                return;
+            }
+            // Bottom face edges (y = y1)
+            drawLine(player, world, pt, x1, y1, z1, x2, y1, z1, spacing);
+            drawLine(player, world, pt, x1, y1, z2, x2, y1, z2, spacing);
+            drawLine(player, world, pt, x1, y1, z1, x1, y1, z2, spacing);
+            drawLine(player, world, pt, x2, y1, z1, x2, y1, z2, spacing);
+            // Top face edges (y = y2)
+            drawLine(player, world, pt, x1, y2, z1, x2, y2, z1, spacing);
+            drawLine(player, world, pt, x1, y2, z2, x2, y2, z2, spacing);
+            drawLine(player, world, pt, x1, y2, z1, x1, y2, z2, spacing);
+            drawLine(player, world, pt, x2, y2, z1, x2, y2, z2, spacing);
+            // Vertical edges
+            drawLine(player, world, pt, x1, y1, z1, x1, y2, z1, spacing);
+            drawLine(player, world, pt, x2, y1, z1, x2, y2, z1, spacing);
+            drawLine(player, world, pt, x1, y1, z2, x1, y2, z2, spacing);
+            drawLine(player, world, pt, x2, y1, z2, x2, y2, z2, spacing);
+        }, 0, CUBE_FRAME_TICK_INTERVAL);
+
+        playerCubeFrameTasks.put(player.getUniqueId(), task);
+
+        Scheduler.runTaskLater(() -> {
+            CancellableTask t = playerCubeFrameTasks.remove(player.getUniqueId());
+            if (t != null) t.cancel();
+        }, duration);
+    }
+
+    /**
+     * Draw particles along a straight line segment between two points.
+     */
+    private static void drawLine(Player player, World world, Particle particle,
+                                  double x1, double y1, double z1,
+                                  double x2, double y2, double z2,
+                                  double spacing) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double dz = z2 - z1;
+        double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        int steps = (int) (length / spacing);
+        for (int i = 0; i <= steps; i++) {
+            double t = steps == 0 ? 0 : (double) i / steps;
+            double x = x1 + t * dx;
+            double y = y1 + t * dy;
+            double z = z1 + t * dz;
+            player.spawnParticle(particle, x, y, z, 1, 0, 0, 0, 0);
         }
     }
 

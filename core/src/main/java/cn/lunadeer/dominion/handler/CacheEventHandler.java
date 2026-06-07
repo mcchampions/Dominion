@@ -34,6 +34,7 @@ public class CacheEventHandler implements Listener {
         // show crossing effect (particle ripple on border plane)
         if (event.getDominion().getEnvironmentFlagValue().getOrDefault(Flags.SHOW_BORDER, false)) {
             BorderRenderUtil.showCrossingEffect(event.getPlayer(), event.getDominion());
+            BorderRenderUtil.showCubeFrame(event.getPlayer(), event.getDominion());
         }
     }
 
@@ -54,6 +55,7 @@ public class CacheEventHandler implements Listener {
         // show crossing effect (particle ripple on border plane)
         if (event.getDominion().getEnvironmentFlagValue().getOrDefault(Flags.SHOW_BORDER, false)) {
             BorderRenderUtil.showCrossingEffect(event.getPlayer(), event.getDominion());
+            BorderRenderUtil.showCubeFrame(event.getPlayer(), event.getDominion());
         }
     }
 
