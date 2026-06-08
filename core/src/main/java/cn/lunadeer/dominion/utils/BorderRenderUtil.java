@@ -321,7 +321,7 @@ public class BorderRenderUtil {
             drawLine(player, pt, x2, y1, z1, x2, y2, z1, spacing);
             drawLine(player, pt, x1, y1, z2, x1, y2, z2, spacing);
             drawLine(player, pt, x2, y1, z2, x2, y2, z2, spacing);
-        }, 0, CUBE_FRAME_TICK_INTERVAL);
+        }, 1, CUBE_FRAME_TICK_INTERVAL);
 
         playerCubeFrameTasks.put(player.getUniqueId(), task);
 
