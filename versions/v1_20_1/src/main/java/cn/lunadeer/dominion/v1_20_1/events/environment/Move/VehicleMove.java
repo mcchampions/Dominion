@@ -44,13 +44,11 @@ public class VehicleMove implements Listener {
         for (org.bukkit.entity.Entity passenger : vehicle.getPassengers()) {
             if (passenger instanceof Player player) {
                 hasPlayerPassenger = true;
-                // Check MOVE at the target location
-                if (!checkPrivilegeFlag(to, Flags.MOVE, player, null)) {
+                if (!checkPrivilegeFlag(to, Flags.VEHICLE_ENTER_EXIT, player, null)) {
                     vehicle.teleport(from);
                     return;
                 }
-                // Check MOVE at the source location
-                if (fromDom != null && !checkPrivilegeFlag(from, Flags.MOVE, player, null)) {
+                if (fromDom != null && !checkPrivilegeFlag(from, Flags.VEHICLE_ENTER_EXIT, player, null)) {
                     vehicle.teleport(from);
                     return;
                 }
