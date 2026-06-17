@@ -10,21 +10,25 @@ jobs:
     #	配置权限
     permissions:
       contents: write
+      packages: read
     runs-on: ubuntu-latest
-    outputs:
-      TAG: ${{ steps.get_tag.outputs.TAG }}
     steps:
+      - uses: actions/checkout@v4
       - name: "Set up JDK 21"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'zulu'
+          java-package: jdk
+          architecture: x64
           cache: gradle
       - name: "Set up JDK 25"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'zulu'
+          java-package: jdk
+          architecture: x64
       - name: "Build with Gradle"
         run: |
           chmod +x gradlew
