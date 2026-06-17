@@ -16,6 +16,7 @@ import cn.lunadeer.dominion.misc.DominionException;
 import cn.lunadeer.dominion.providers.DominionProvider;
 import cn.lunadeer.dominion.utils.Notification;
 import cn.lunadeer.dominion.utils.BorderRenderUtil;
+import cn.lunadeer.dominion.utils.XLogger;
 import cn.lunadeer.dominion.utils.configuration.ConfigurationPart;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -137,6 +138,8 @@ public class DominionProviderHandler extends DominionProvider {
                 Notification.info(event.getOperator(), Language.dominionProviderHandlerText.createSuccess, event.getName());
                 return inserted;
             } catch (Exception e) {
+                XLogger.error("Create dominion {0} failed: {1}", event.getName(), e.getMessage());
+                XLogger.error(e);
                 Notification.error(event.getOperator(), Language.dominionProviderHandlerText.createFailed, event.getName(), e.getMessage());
                 return null;
             }

@@ -70,11 +70,10 @@ public class DominionRepository extends RepositorySupport {
             values.put(DOM_OWNER_GLOW, dominion.ownerGlow());
             putEnvFlags(values, dominion.envFlags());
             putPriFlags(values, dominion.guestFlags());
-            Integer id = db().insertInto(DOMINION)
+            db().insertInto(DOMINION)
                     .set(values)
-                    .returningResult(DOM_ID)
-                    .fetchOne(DOM_ID);
-            return select(id);
+                    .execute();
+            return select(dominion.name());
         });
     }
 
