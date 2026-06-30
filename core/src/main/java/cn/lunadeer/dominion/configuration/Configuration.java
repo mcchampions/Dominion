@@ -264,14 +264,6 @@ public class Configuration extends ConfigurationFile {
     @Comments("Check for updates by internet.")
     public static boolean checkUpdate = true;
 
-    @Comments({
-            "Whether to prevent vehicles (boat, minecart) from crossing dominion borders.",
-            "When enabled, players without MOVE privilege cannot drive vehicles into/out of a dominion,",
-            "and unmanned vehicles cannot be pushed across dominion borders.",
-            "This helps prevent stealing villagers with valuable trades (e.g. Mending)."
-    })
-    public static boolean vehicleProtection = true;
-
     @Comments("Debug mode, if report bugs turn this on.")
     public static boolean debug = false;
 

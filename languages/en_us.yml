@@ -409,9 +409,6 @@ flags:
   vehicle_spawn:
     display-name: Vehicle Spawn
     description: Whether can spawn vehicle (boat, minecart).
-  vehicle_move:
-    display-name: Vehicle Move
-    description: Whether unmanned vehicle can move in/out dominion.
   trig_pressure_mob:
     display-name: Pressure Plate (Mob)
     description: Whether mob (player not included) can trigger pressure plate.
