@@ -94,7 +94,7 @@ public class Configuration extends ConfigurationFile {
     public static Database database = new Database();
 
     public static class Database extends ConfigurationPart {
-        @Comments("Supported types: sqlite, mysql, pgsql")
+        @Comments("Supported types: sqlite, mysql, mariadb, pgsql")
         public String type = "sqlite";
 
         @Comments("The host of the database.")
@@ -156,6 +156,9 @@ public class Configuration extends ConfigurationFile {
 
     @Comments("Prevent player from creating dominion around the spawn point.")
     public static int serverSpawnProtectionRadius = 10;
+
+    @Comments("Minimum distance between two dominions.")
+    public static int minimumDominionDistance = 0;
 
     @Comments("Tool used to select position for creating dominion.")
     public static String selectTool = "ARROW";

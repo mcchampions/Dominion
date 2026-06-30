@@ -14,10 +14,11 @@ var buildFull = properties["BuildFull"].toString() == "true"
 var libraries = listOf<String>()
 libraries += "org.postgresql:postgresql:42.7.2"
 libraries += "com.mysql:mysql-connector-j:8.4.0"
+libraries += "org.mariadb.jdbc:mariadb-java-client:3.5.3"
 libraries += "org.xerial:sqlite-jdbc:3.46.1.3"
 libraries += "net.kyori:adventure-platform-bukkit:4.3.3"
 libraries += "com.zaxxer:HikariCP:6.2.1"
-libraries += "org.jooq:jooq:3.19.15"
+libraries += "org.mybatis:mybatis:3.5.16"
 libraries += "org.flywaydb:flyway-core:11.8.2"
 libraries += "org.flywaydb:flyway-database-postgresql:11.8.2"
 libraries += "org.flywaydb:flyway-mysql:11.8.2"
@@ -25,9 +26,11 @@ libraries += "net.kyori:adventure-text-minimessage:4.22.0"
 
 // release or alpha based on git branch
 var suffixes = getAndIncrementVersion()
+val currentBranch = getCurrentGitBranch()
+val isMainBranch = currentBranch == "master"
 
 group = "cn.lunadeer"
-version = "4.8.3-$suffixes"
+version = if (isMainBranch) "4.8.5-$suffixes" else suffixes
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -181,9 +184,10 @@ fun getAndIncrementVersion(): String {
     }
 
     val currentBranch = getCurrentGitBranch()
-    val versionType = if (currentBranch.startsWith("dev/")) "alpha" else "release"
+    val isMainBranch = currentBranch == "master"
+    val versionType = if (isMainBranch) "release" else currentBranch.replace("/", "-")
 
-    val currentSuffix = props.getProperty("suffixes", if (versionType == "release") "release" else "${versionType}.24")
+    val currentSuffix = props.getProperty("suffixes", if (isMainBranch) "release" else "${versionType}.1")
 
     // Check if we need to switch version type (branch changed)
     val currentType = currentSuffix.split(".")[0]
@@ -206,8 +210,8 @@ fun getAndIncrementVersion(): String {
         return "release"
     }
 
-    // For alpha, increment the number
-    if (currentSuffix.startsWith("alpha.")) {
+    // For non-release, increment the number
+    if (currentSuffix.startsWith("$versionType.")) {
         val parts = currentSuffix.split(".")
         if (parts.size >= 2) {
             val currentNumber = parts[1].toIntOrNull() ?: 1

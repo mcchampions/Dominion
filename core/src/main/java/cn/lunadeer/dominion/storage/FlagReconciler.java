@@ -2,8 +2,8 @@ package cn.lunadeer.dominion.storage;
 
 import cn.lunadeer.dominion.api.dtos.flag.Flag;
 import cn.lunadeer.dominion.api.dtos.flag.Flags;
-import org.jooq.DSLContext;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -14,26 +14,50 @@ import java.util.Locale;
 
 final class FlagReconciler {
 
-    private final DSLContext dsl;
+    private final DataSource dataSource;
     private final DatabaseType type;
 
-    FlagReconciler(DSLContext dsl, DatabaseType type) {
-        this.dsl = dsl;
+    FlagReconciler(DataSource dataSource, DatabaseType type) {
+        this.dataSource = dataSource;
         this.type = type;
     }
 
     SyncResult reconcile() {
-        return dsl.connectionResult(this::reconcile);
+        try (Connection connection = dataSource.getConnection()) {
+            return reconcile(connection);
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Failed to reconcile flag columns", exception);
+        }
     }
 
     private SyncResult reconcile(Connection connection) throws SQLException {
         int changed = 0;
+        changed += reconcileSplitBurnFlag(connection);
         changed += reconcileFlags(connection, "dominion", Flags.getAllEnvFlags());
         changed += reconcileFlags(connection, "dominion", Flags.getAllPriFlags());
         changed += reconcileFlags(connection, "dominion_member", Flags.getAllPriFlags());
         changed += reconcileFlags(connection, "dominion_group", Flags.getAllPriFlags());
         changed += reconcileFlags(connection, "privilege_template", Flags.getAllPriFlags());
         return new SyncResult(changed);
+    }
+
+    private int reconcileSplitBurnFlag(Connection connection) throws SQLException {
+        int changed = 0;
+        boolean oldBurnExists = columnExists(connection, "dominion", "burn");
+        changed += reconcileSplitFlagColumn(connection, oldBurnExists, Flags.BURN_BLOCK);
+        changed += reconcileSplitFlagColumn(connection, oldBurnExists, Flags.BURN_ENTITY);
+        return changed;
+    }
+
+    private int reconcileSplitFlagColumn(Connection connection, boolean oldBurnExists, Flag newFlag) throws SQLException {
+        if (columnExists(connection, "dominion", newFlag.getFlagName())) {
+            return 0;
+        }
+        addFlagColumn(connection, "dominion", newFlag);
+        if (oldBurnExists) {
+            copyFlagColumn(connection, "dominion", "burn", newFlag.getFlagName());
+        }
+        return 1;
     }
 
     private int reconcileFlags(Connection connection, String tableName, List<? extends Flag> flags) throws SQLException {
@@ -63,6 +87,12 @@ final class FlagReconciler {
         }
     }
 
+    private void copyFlagColumn(Connection connection, String tableName, String sourceColumn, String targetColumn) throws SQLException {
+        try (var statement = connection.createStatement()) {
+            statement.executeUpdate("UPDATE " + tableName + " SET " + targetColumn + " = " + sourceColumn);
+        }
+    }
+
     private boolean columnExists(Connection connection, String tableName, String columnName) throws SQLException {
         DatabaseMetaData metaData = connection.getMetaData();
         String normalized = columnName.toLowerCase(Locale.ROOT);
@@ -87,11 +117,11 @@ final class FlagReconciler {
     }
 
     private String boolType() {
-        return type == DatabaseType.MYSQL ? "TINYINT(1)" : "BOOLEAN";
+        return type.isMySqlFamily() ? "TINYINT(1)" : "BOOLEAN";
     }
 
     private String booleanLiteral(boolean value) {
-        if (type == DatabaseType.MYSQL) {
+        if (type.isMySqlFamily()) {
             return value ? "1" : "0";
         }
         return value ? "true" : "false";
