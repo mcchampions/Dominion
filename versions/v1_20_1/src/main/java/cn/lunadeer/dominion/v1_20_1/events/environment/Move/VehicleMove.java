@@ -18,6 +18,7 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import static cn.lunadeer.dominion.misc.Others.checkEnvironmentFlag;
 import static cn.lunadeer.dominion.misc.Others.checkPrivilegeFlag;
 
+@PaperOnly
 public class VehicleMove implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void handler(VehicleMoveEvent event) {
