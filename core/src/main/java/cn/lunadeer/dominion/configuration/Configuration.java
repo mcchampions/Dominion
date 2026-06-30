@@ -265,10 +265,10 @@ public class Configuration extends ConfigurationFile {
     public static boolean checkUpdate = true;
 
     @Comments({
-            "是否阻止载具（船、矿车）穿越领地边界。",
-            "开启后，没有载具进出权限的玩家无法驾驶载具进出领地，",
-            "且无人驾驶载具无法被推过领地边界。",
-            "这有助于防止玩家偷窃带有珍贵交易的村民（如经验修补）。"
+            "Whether to prevent vehicles (boat, minecart) from crossing dominion borders.",
+            "When enabled, players without MOVE privilege cannot drive vehicles into/out of a dominion,",
+            "and unmanned vehicles cannot be pushed across dominion borders.",
+            "This helps prevent stealing villagers with valuable trades (e.g. Mending)."
     })
     public static boolean vehicleProtection = true;
 

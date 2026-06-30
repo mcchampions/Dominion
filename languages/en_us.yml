@@ -412,9 +412,6 @@ flags:
   vehicle_move:
     display-name: Vehicle Move
     description: Whether unmanned vehicle can move in/out dominion.
-  vehicle_enter_exit:
-    display-name: Vehicle Enter/Exit
-    description: Whether can drive vehicle (boat, minecart) in/out of dominion.
   trig_pressure_mob:
     display-name: Pressure Plate (Mob)
     description: Whether mob (player not included) can trigger pressure plate.

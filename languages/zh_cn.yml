@@ -362,9 +362,6 @@ flags:
   vehicle_move:
     display-name: 空载具移动
     description: 是否允许无人驾驶载具（船、矿车）进出领地
-  vehicle_enter_exit:
-    display-name: 载具进出
-    description: 是否可以使用载具（船、矿车）进出领地
   trig_pressure_mob:
     display-name: 生物触发压力板
     description: 生物（不包含玩家）是否可以触发压力板
