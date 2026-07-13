@@ -296,7 +296,7 @@ public class BorderRenderUtil {
 
         final CuboidDTO cuboid = dominion.getCuboid();
         final int x1 = cuboid.x1(), y1 = cuboid.y1(), z1 = cuboid.z1();
-        final int x2 = cuboid.x2() + 1, y2 = cuboid.y2() + 1, z2 = cuboid.z2() + 1;
+        final int x2 = cuboid.x2(), y2 = cuboid.y2(), z2 = cuboid.z2();
         final double spacing = CUBE_FRAME_PARTICLE_SPACING;
         final Particle pt = particleType;
 
