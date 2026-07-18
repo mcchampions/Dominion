@@ -23,7 +23,7 @@ import org.joml.Vector3f;
 import java.util.*;
 
 /**
- * Fake entity implementation for Minecraft 26+.
+ * Fake entity implementation for Minecraft 26.1.2.
  * <p>
  * Based on 1.21.9 implementation — metadata indices and teleport packet format
  * may need adjustment if NMS internals change in MC 26.

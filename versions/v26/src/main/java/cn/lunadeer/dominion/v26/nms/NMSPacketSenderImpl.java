@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.entity.Player;
 
 /**
- * NMS packet sender implementation for Minecraft 26+.
+ * NMS packet sender implementation for Minecraft 26.1.2.
  */
 public class NMSPacketSenderImpl implements NMSPacketSender {
 

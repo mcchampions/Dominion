@@ -9,7 +9,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Fake entity factory implementation for Minecraft 26+.
+ * Fake entity factory implementation for Minecraft 26.1.2.
  */
 public class FakeEntityFactoryImpl implements FakeEntityFactory {
 

@@ -6,20 +6,17 @@ import cn.lunadeer.dominion.api.dtos.PlayerDTO;
 import cn.lunadeer.dominion.cache.CacheManager;
 import cn.lunadeer.dominion.configuration.Configuration;
 import cn.lunadeer.dominion.configuration.Language;
-import cn.lunadeer.dominion.configuration.uis.TextUserInterface;
 import cn.lunadeer.dominion.doos.DominionDOO;
 import cn.lunadeer.dominion.doos.PlayerDOO;
 import cn.lunadeer.dominion.misc.CommandArguments;
 import cn.lunadeer.dominion.misc.DominionException;
 import cn.lunadeer.dominion.providers.DominionProvider;
-import cn.lunadeer.dominion.uis.MigrateList;
 import cn.lunadeer.dominion.utils.Notification;
 import cn.lunadeer.dominion.utils.ResMigration;
 import cn.lunadeer.dominion.utils.XLogger;
 import cn.lunadeer.dominion.utils.command.Argument;
 import cn.lunadeer.dominion.utils.command.SecondaryCommand;
 import cn.lunadeer.dominion.utils.configuration.ConfigurationPart;
-import cn.lunadeer.dominion.utils.stui.components.buttons.ListViewButton;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,34 +36,19 @@ public class MigrationCommand {
         public String notYourResidence = "Residence {0} is not yours.";
         public String migrateDescription = "Migrate a specific residence to dominion.";
         public String migrateAllDescription = "Migrate all residences to dominions.";
-    }
-
-    /**
-     * Creates a ListViewButton for migration.
-     *
-     * @param sender        the command sender
-     * @param residenceName the name of the residence
-     * @return the ListViewButton
-     */
-    public static ListViewButton button(CommandSender sender, String residenceName) {
-        return (ListViewButton) new ListViewButton(TextUserInterface.migrateListTuiText.button) {
-            @Override
-            public void function(String pageStr) {
-                migrate(sender, residenceName, pageStr);
-            }
-        }.needPermission(defaultPermission);
+        public String notEnabled = "Residence migration is not enabled.";
+        public String noData = "No residence data found.";
     }
 
     /**
      * Secondary command for migration.
      */
     public static SecondaryCommand migrate = new SecondaryCommand("migrate", List.of(
-            new Argument("residence_name", true),
-            new CommandArguments.OptionalPageArgument()
+            new Argument("residence_name", true)
     ), Language.migrationCommandText.migrateDescription) {
         @Override
         public void executeHandler(CommandSender sender) {
-            migrate(sender, getArgumentValue(0), getArgumentValue(1));
+            migrate(sender, getArgumentValue(0));
         }
     }.needPermission(defaultPermission).register();
 
@@ -87,17 +69,16 @@ public class MigrationCommand {
      *
      * @param sender  the command sender
      * @param resName the name of the residence
-     * @param pageStr the page string
      */
-    public static void migrate(CommandSender sender, String resName, String pageStr) {
+    public static void migrate(CommandSender sender, String resName) {
         try {
             if (!Configuration.residenceMigration) {
-                Notification.error(sender, TextUserInterface.migrateListTuiText.notEnabled);
+                Notification.error(sender, Language.migrationCommandText.notEnabled);
                 return;
             }
             List<ResMigration.ResidenceNode> res_data = CacheManager.instance.getResidenceCache().getResidenceData();
             if (res_data == null) {
-                throw new DominionException(TextUserInterface.migrateListTuiText.noData);
+                throw new DominionException(Language.migrationCommandText.noData);
             }
             ResMigration.ResidenceNode resNode = res_data.stream().filter(node -> node.name.equals(resName)).findFirst().orElse(null);
             if (resNode == null) {
@@ -109,7 +90,6 @@ public class MigrationCommand {
                 }
             }
             doMigrateCreate(sender, resNode, null);
-            MigrateList.show(sender, pageStr);
         } catch (Exception e) {
             Notification.error(sender, Language.migrationCommandText.migrateFailed, e.getMessage());
         }
@@ -173,7 +153,7 @@ public class MigrationCommand {
     public static void migrateAll(CommandSender sender) {
         List<ResMigration.ResidenceNode> res_data = CacheManager.instance.getResidenceCache().getResidenceData();
         if (res_data == null || res_data.isEmpty()) {
-            Notification.error(sender, TextUserInterface.migrateListTuiText.noData);
+            Notification.error(sender, Language.migrationCommandText.noData);
             return;
         }
         int successCount = 0;

@@ -30,7 +30,7 @@ val currentBranch = getCurrentGitBranch()
 val isMainBranch = currentBranch == "master"
 
 group = "cn.lunadeer"
-version = if (isMainBranch) "4.8.5-$suffixes" else suffixes
+version = if (isMainBranch) "4.9.0-$suffixes" else suffixes
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -70,6 +70,8 @@ allprojects {
         // copy languages folder from PROJECT_DIR/languages to core/src/main/resources
         from(file("${projectDir}/languages")) {
             into("languages")
+            exclude("cui", "cui/**")
+            includeEmptyDirs = false
         }
         // replace @version@ in plugin.yml with project version
         filesMatching("**/plugin.yml") {
@@ -100,13 +102,17 @@ allprojects {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project("versions:v1_20_1"))
-    implementation(project("versions:v1_21"))
-    implementation(project("versions:v1_21_4"))
-    implementation(project("versions:v1_21_6"))
-    implementation(project("versions:v1_21_8"))
-    implementation(project("versions:v1_21_9"))
+    // Minecraft 1.20.1-1.21.9 modules must ship with Spigot runtime mappings.
+    // Paper can remap these on 1.20.5+, while Spigot requires them directly.
+    implementation(project(path = ":versions:v1_20_1", configuration = "reobf"))
+    implementation(project(path = ":versions:v1_21", configuration = "reobf"))
+    implementation(project(path = ":versions:v1_21_4", configuration = "reobf"))
+    implementation(project(path = ":versions:v1_21_6", configuration = "reobf"))
+    implementation(project(path = ":versions:v1_21_8", configuration = "reobf"))
+    implementation(project(path = ":versions:v1_21_9", configuration = "reobf"))
+    // Minecraft 26.x no longer supports Spigot runtime mappings.
     implementation(project(path = ":versions:v26", configuration = "shadowRuntimeElements"))
+    implementation(project(path = ":versions:v26_2", configuration = "shadowRuntimeElements"))
 }
 
 // Reobfuscate all subproject JARs that have paperweight reobfJar task
@@ -149,7 +155,7 @@ hangarPublish {
             register(Platforms.PAPER) {
                 jar.set(tasks.shadowJar.flatMap { it.archiveFile })
                 println("ShadowJar: ${tasks.shadowJar.flatMap { it.archiveFile }}")
-                platformVersions.set(listOf("1.20.1-1.20.6", "1.21.x", "26.1.2"))
+                platformVersions.set(listOf("1.20.1-1.20.6", "1.21.x", "26.1.2-26.2"))
             }
         }
     }
